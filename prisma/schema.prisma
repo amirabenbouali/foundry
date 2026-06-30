@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum DomainHealth {
+  HEALTHY
+  WATCH
+  AT_RISK
+  CRITICAL
+}
+
+enum IssueStatus {
+  OPEN
+  TRIAGE
+  PLANNED
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum IssueSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum PlanStatus {
+  DRAFT
+  ACTIVE
+  BLOCKED
+  SHIPPED
+}
+
+enum IncidentStatus {
+  ACTIVE
+  MONITORING
+  RESOLVED
+}
+
+enum IncidentSeverity {
+  SEV1
+  SEV2
+  SEV3
+}
+
+model Workspace {
+  id        String     @id @default(cuid())
+  name      String
+  slug      String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  domains   Domain[]
+  issues    Issue[]
+  incidents Incident[]
+}
+
+model Domain {
+  id          String       @id @default(cuid())
+  workspaceId String
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name        String
+  slug        String
+  owner       String
+  health      DomainHealth @default(HEALTHY)
+  system      String
+  description String       @db.Text
+  rolloutNotes String      @db.Text
+  dependencies String[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  issues      Issue[]
+  incidents   Incident[]
+
+  @@unique([workspaceId, slug])
+  @@index([workspaceId])
+}
+
+model Issue {
+  id          String            @id @default(cuid())
+  workspaceId String
+  workspace   Workspace         @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  domainId    String
+  domain      Domain            @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  title       String
+  summary     String            @db.Text
+  status      IssueStatus       @default(OPEN)
+  severity    IssueSeverity     @default(MEDIUM)
+  risk        String
+  rollout     String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  plan        EngineeringPlan?
+
+  @@index([workspaceId])
+  @@index([domainId])
+}
+
+model EngineeringPlan {
+  id        String     @id @default(cuid())
+  issueId   String     @unique
+  issue     Issue      @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  title     String
+  status    PlanStatus @default(DRAFT)
+  approach  String     @db.Text
+  edgeCases String     @db.Text
+  testPlan  String     @db.Text
+  rolloutPlan String   @db.Text
+  monitoringPlan String @db.Text
+  rollbackPlan String @db.Text
+  owner     String
+  targetDate DateTime?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Incident {
+  id          String           @id @default(cuid())
+  workspaceId String
+  workspace   Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  domainId    String
+  domain      Domain           @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  title       String
+  summary     String           @db.Text
+  impact      String           @db.Text
+  rootCause   String           @db.Text
+  resolution  String           @db.Text
+  prevention  String           @db.Text
+  postmortemRequired Boolean   @default(false)
+  status      IncidentStatus   @default(ACTIVE)
+  severity    IncidentSeverity @default(SEV3)
+  startedAt   DateTime
+  resolvedAt  DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([workspaceId])
+  @@index([domainId])
+}
