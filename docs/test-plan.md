@@ -27,17 +27,20 @@ npm run prisma:seed
 1. Overview shows total domains, open issues, active incidents, and domains at risk.
 2. Overview includes systems needing attention, weekly focus, active incidents, and rollout activity.
 3. Domain cards link to `/domains/[id]`.
-4. Domain detail pages show owner, health, open issues, active incidents, rollout notes, and dependencies.
-5. Issue rows link to `/issues/[id]`.
-6. Issue rows show deployment readiness score and status.
-7. Issue detail pages show the engineering plan sections when a plan exists.
-8. Issue detail pages show completed and missing deployment readiness evidence.
-9. Issue detail pages explain what blocks safe shipment.
-10. Overview shows average readiness, ready issues, blocked issues, and top issues needing attention.
-11. Issue detail pages handle missing plans without breaking.
-12. Triage groups incidents by operational state and shows domain owner plus postmortem requirement.
-13. Postmortems show impact, root cause, resolution, and prevention.
-14. The interface stays calm and ownership-centered across desktop and mobile widths.
+4. Domain cards show ownership score, ownership status, and 2-3 stewardship reasons.
+5. Domain detail pages show owner, health, open issues, active incidents, rollout notes, and dependencies.
+6. Domain detail pages show Ownership Health with related blocked issues and active incidents.
+7. Issue rows link to `/issues/[id]`.
+8. Issue rows show deployment readiness score and status.
+9. Issue detail pages show the engineering plan sections when a plan exists.
+10. Issue detail pages show completed and missing deployment readiness evidence.
+11. Issue detail pages explain what blocks safe shipment.
+12. Overview shows average readiness, ready issues, blocked issues, and top issues needing attention.
+13. Overview shows average ownership health, healthy domains, domains on watch, and at-risk domains.
+14. Issue detail pages handle missing plans without breaking.
+15. Triage groups incidents by operational state and shows domain owner plus postmortem requirement.
+16. Postmortems show impact, root cause, resolution, and prevention.
+17. The interface stays calm and ownership-centered across desktop and mobile widths.
 
 ## Deferred Tests
 

@@ -1,13 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
+  getDomainsWithOwnershipHealth,
   getDomain,
   getIncidents,
   getIssue,
   getOverviewMetrics,
+  getOwnershipHealthSummary,
   getRecentRolloutActivity,
   getSystemsNeedingAttention,
   getWeeklyFocus,
 } from "../../lib/data";
+import { calculateOwnershipHealth, getOwnershipHealthStatus } from "../../lib/ownership-health";
 import { calculateDeploymentReadiness, getReadinessStatus } from "../../lib/readiness";
 
 describe("data helpers", () => {
@@ -101,5 +104,78 @@ describe("deployment readiness", () => {
     expect(getReadinessStatus(84)).toBe("Needs attention");
     expect(getReadinessStatus(50)).toBe("Needs attention");
     expect(getReadinessStatus(49)).toBe("Blocked");
+  });
+});
+
+describe("ownership health", () => {
+  it("scores domain stewardship risk from issues, incidents, readiness gaps, and owner presence", () => {
+    const health = calculateOwnershipHealth({
+      owner: "Noah Kim",
+      issues: [
+        {
+          status: "OPEN",
+          plan: null,
+        },
+        {
+          status: "IN_PROGRESS",
+          plan: {
+            approach: "Use staged ownership gates.",
+            edgeCases: "Emergency overrides.",
+            testPlan: "Policy and integration tests.",
+            rolloutPlan: "Stage by service.",
+            monitoringPlan: "Watch error budget.",
+            rollbackPlan: "Disable the policy flag.",
+          },
+        },
+      ],
+      incidents: [{ status: "MONITORING" }],
+    });
+
+    expect(health.score).toBe(57);
+    expect(health.status).toBe("At risk");
+    expect(health.blockedIssueCount).toBe(1);
+    expect(health.activeIncidentCount).toBe(1);
+    expect(health.reasons).toContain("1 active incident need owner attention.");
+  });
+
+  it("penalizes domains without owners", () => {
+    const health = calculateOwnershipHealth({
+      owner: "",
+      issues: [],
+      incidents: [],
+    });
+
+    expect(health.score).toBe(75);
+    expect(health.status).toBe("Watch");
+    expect(health.reasons).toContain("No accountable owner is assigned.");
+  });
+
+  it("uses ownership health thresholds", () => {
+    expect(getOwnershipHealthStatus(100)).toBe("Healthy");
+    expect(getOwnershipHealthStatus(85)).toBe("Healthy");
+    expect(getOwnershipHealthStatus(84)).toBe("Watch");
+    expect(getOwnershipHealthStatus(60)).toBe("Watch");
+    expect(getOwnershipHealthStatus(59)).toBe("At risk");
+  });
+
+  it("returns ownership health for domain cards and overview summary", async () => {
+    const [domainsWithHealth, summary] = await Promise.all([
+      getDomainsWithOwnershipHealth(),
+      getOwnershipHealthSummary(),
+    ]);
+    const deployment = domainsWithHealth.find(
+      (domain) => domain.slug === "deployment-control-plane",
+    );
+
+    expect(deployment?.ownershipHealth.status).toBe("At risk");
+    expect(deployment?.ownershipHealth.reasons).toContain(
+      "1 active incident need owner attention.",
+    );
+    expect(summary).toEqual({
+      averageOwnershipScore: 75,
+      healthyDomains: 1,
+      watchDomains: 3,
+      atRiskDomains: 1,
+    });
   });
 });

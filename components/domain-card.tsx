@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { OwnershipHealthBadge, OwnershipHealthMeter } from "@/components/ownership-health";
+import type { OwnershipHealth } from "@/lib/ownership-health";
 import { formatLabel } from "@/lib/utils";
 
 type DomainCardProps = {
@@ -13,6 +15,7 @@ type DomainCardProps = {
       issues: number;
       incidents?: number;
     };
+    ownershipHealth?: OwnershipHealth;
   };
 };
 
@@ -44,6 +47,27 @@ export function DomainCard({ domain }: DomainCardProps) {
       </div>
 
       <p className="mt-4 min-h-12 text-sm leading-6 text-neutral-600">{domain.description}</p>
+
+      {domain.ownershipHealth ? (
+        <div className="mt-5 rounded-md border border-neutral-200 bg-neutral-50/70 p-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="text-sm font-semibold text-neutral-950">
+              {domain.ownershipHealth.score}%
+            </div>
+            <OwnershipHealthBadge status={domain.ownershipHealth.status} />
+          </div>
+          <div className="mt-3">
+            <OwnershipHealthMeter score={domain.ownershipHealth.score} />
+          </div>
+          <div className="mt-3 space-y-1">
+            {domain.ownershipHealth.reasons.slice(0, 3).map((reason) => (
+              <p key={reason} className="text-xs leading-5 text-neutral-600">
+                {reason}
+              </p>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       <div className="mt-5 grid grid-cols-2 gap-3 border-t border-neutral-100 pt-4 text-sm">
         <div>

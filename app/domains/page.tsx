@@ -1,9 +1,9 @@
 import { DomainCard } from "@/components/domain-card";
 import { PageHeader } from "@/components/page-header";
-import { getDomains } from "@/lib/data";
+import { getDomainsWithOwnershipHealth } from "@/lib/data";
 
 export default async function DomainsPage() {
-  const domains = await getDomains();
+  const domains = await getDomainsWithOwnershipHealth();
 
   return (
     <>

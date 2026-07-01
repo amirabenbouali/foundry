@@ -1,5 +1,6 @@
 import { domains, incidents, issues, workspace } from "./sample-data";
 import { calculateDeploymentReadiness } from "./readiness";
+import { calculateOwnershipHealth } from "./ownership-health";
 
 type PrismaModule = typeof import("@prisma/client");
 
@@ -107,6 +108,63 @@ export async function getDomains() {
   return sampleDomainsWithCounts();
 }
 
+export async function getDomainsWithOwnershipHealth() {
+  const prisma = await getPrisma();
+
+  if (prisma) {
+    const allDomains = await prisma.domain.findMany({
+      orderBy: [{ health: "desc" }, { name: "asc" }],
+      include: {
+        issues: {
+          include: {
+            plan: true,
+          },
+        },
+        incidents: true,
+        _count: {
+          select: {
+            issues: {
+              where: {
+                status: {
+                  not: "RESOLVED",
+                },
+              },
+            },
+            incidents: {
+              where: {
+                status: {
+                  not: "RESOLVED",
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return allDomains.map((domain) => ({
+      ...domain,
+      ownershipHealth: calculateOwnershipHealth(domain),
+    }));
+  }
+
+  return sampleDomainsWithCounts().map((domain) => {
+    const domainIssues = issues.filter((issue) => issue.domainSlug === domain.slug);
+    const domainIncidents = incidents.filter((incident) => incident.domainSlug === domain.slug);
+
+    return {
+      ...domain,
+      issues: domainIssues,
+      incidents: domainIncidents,
+      ownershipHealth: calculateOwnershipHealth({
+        owner: domain.owner,
+        issues: domainIssues,
+        incidents: domainIncidents,
+      }),
+    };
+  });
+}
+
 export async function getDomain(id: string) {
   const prisma = await getPrisma();
 
@@ -159,6 +217,31 @@ export async function getDomain(id: string) {
     ...domain,
     issues: issues.filter((issue) => issue.domainSlug === domain.slug),
     incidents: incidents.filter((incident) => incident.domainSlug === domain.slug),
+  };
+}
+
+export async function getOwnershipHealthSummary() {
+  const domainsWithHealth = await getDomainsWithOwnershipHealth();
+  const averageOwnershipScore =
+    domainsWithHealth.length > 0
+      ? Math.round(
+          domainsWithHealth.reduce(
+            (total, domain) => total + domain.ownershipHealth.score,
+            0,
+          ) / domainsWithHealth.length,
+        )
+      : 0;
+
+  return {
+    averageOwnershipScore,
+    healthyDomains: domainsWithHealth.filter(
+      (domain) => domain.ownershipHealth.status === "Healthy",
+    ).length,
+    watchDomains: domainsWithHealth.filter((domain) => domain.ownershipHealth.status === "Watch")
+      .length,
+    atRiskDomains: domainsWithHealth.filter(
+      (domain) => domain.ownershipHealth.status === "At risk",
+    ).length,
   };
 }
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DomainCard } from "@/components/domain-card";
+import { OwnershipHealthMeter } from "@/components/ownership-health";
 import { PageHeader } from "@/components/page-header";
 import { ReadinessBadge, ReadinessMeter } from "@/components/readiness";
 import { SectionPanel } from "@/components/section-panel";
@@ -9,15 +10,25 @@ import {
   getDeploymentReadinessSummary,
   getIncidents,
   getOverviewMetrics,
+  getOwnershipHealthSummary,
   getRecentRolloutActivity,
   getSystemsNeedingAttention,
   getWeeklyFocus,
 } from "@/lib/data";
 
 export default async function OverviewPage() {
-  const [metrics, readinessSummary, attentionSystems, weeklyFocus, incidents, rolloutActivity] = await Promise.all([
+  const [
+    metrics,
+    readinessSummary,
+    ownershipHealthSummary,
+    attentionSystems,
+    weeklyFocus,
+    incidents,
+    rolloutActivity,
+  ] = await Promise.all([
     getOverviewMetrics(),
     getDeploymentReadinessSummary(),
+    getOwnershipHealthSummary(),
     getSystemsNeedingAttention(),
     getWeeklyFocus(),
     getIncidents(),
@@ -95,6 +106,53 @@ export default async function OverviewPage() {
                 </div>
               </Link>
             ))}
+          </div>
+        </SectionPanel>
+
+        <SectionPanel
+          title="Ownership Health"
+          description="A stewardship signal for whether each system has an owner, active attention, and safe rollout evidence."
+          className="xl:col-span-2"
+        >
+          <div className="grid gap-4 md:grid-cols-4">
+            <div className="rounded-md border border-neutral-200 bg-neutral-50/70 p-4">
+              <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                Average ownership
+              </div>
+              <div className="mt-3 text-3xl font-semibold text-neutral-950">
+                {ownershipHealthSummary.averageOwnershipScore}%
+              </div>
+              <div className="mt-3">
+                <OwnershipHealthMeter score={ownershipHealthSummary.averageOwnershipScore} />
+              </div>
+            </div>
+            <div className="rounded-md border border-neutral-200 bg-neutral-50/70 p-4">
+              <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                Healthy domains
+              </div>
+              <div className="mt-3 text-3xl font-semibold text-neutral-950">
+                {ownershipHealthSummary.healthyDomains}
+              </div>
+              <p className="mt-2 text-sm leading-6 text-neutral-600">Systems with clear ownership and low operational drag.</p>
+            </div>
+            <div className="rounded-md border border-neutral-200 bg-neutral-50/70 p-4">
+              <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                On watch
+              </div>
+              <div className="mt-3 text-3xl font-semibold text-neutral-950">
+                {ownershipHealthSummary.watchDomains}
+              </div>
+              <p className="mt-2 text-sm leading-6 text-neutral-600">Systems that need closer owner attention.</p>
+            </div>
+            <div className="rounded-md border border-neutral-200 bg-neutral-50/70 p-4">
+              <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                At-risk domains
+              </div>
+              <div className="mt-3 text-3xl font-semibold text-neutral-950">
+                {ownershipHealthSummary.atRiskDomains}
+              </div>
+              <p className="mt-2 text-sm leading-6 text-neutral-600">Systems where stewardship evidence is weak.</p>
+            </div>
           </div>
         </SectionPanel>
 
