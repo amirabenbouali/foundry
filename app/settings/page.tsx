@@ -8,8 +8,8 @@ export default async function SettingsPage() {
     <>
       <PageHeader
         eyebrow="Settings"
-        title="Workspace foundation"
-        description="Configuration is intentionally thin for now. Authentication, roles, and integrations can layer in once the ownership model settles."
+        title="Workspace basics"
+        description="Configuration stays intentionally small until ownership, readiness, and system diagnosis are proven."
       />
 
       <section className="rounded-lg border border-neutral-200 bg-white p-5 shadow-soft">

@@ -66,7 +66,7 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
       <div className="mt-6 grid gap-5 xl:grid-cols-[0.8fr_1.2fr]">
         <SectionPanel
           title="Deployment Readiness"
-          description="Foundry asks whether this work has enough engineering evidence to ship safely."
+          description="Foundry's judgement of whether this work has enough evidence to ship safely."
         >
           <div className="space-y-5">
             <div className="flex items-start justify-between gap-4">
@@ -130,7 +130,7 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
           </div>
         </SectionPanel>
 
-        <SectionPanel title="Ownership Risk">
+        <SectionPanel title="Risk Narrative">
           <div className="space-y-5">
             <div>
               <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">Risk</h2>

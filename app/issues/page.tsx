@@ -13,13 +13,13 @@ export default async function IssuesPage() {
     <>
       <PageHeader
         eyebrow="Issues"
-        title="Engineering risks"
-        description="Risks, reliability gaps, and ownership work that affect software systems and rollout safety."
+        title="Safe-to-ship risks"
+        description="Engineering work judged by readiness, rollout clarity, monitoring evidence, and rollback confidence."
       />
 
       <section className="overflow-hidden rounded-lg border border-neutral-200/90 bg-white/88 shadow-soft">
         <div className="hidden grid-cols-[1.2fr_0.65fr_0.45fr_0.45fr_0.65fr] gap-4 border-b border-neutral-200 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-neutral-500 md:grid">
-          <div>Risk</div>
+          <div>Engineering judgement</div>
           <div>Domain</div>
           <div>Status</div>
           <div>Severity</div>

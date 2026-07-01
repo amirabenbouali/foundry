@@ -18,7 +18,7 @@ export default async function PostmortemsPage() {
       <PageHeader
         eyebrow="Postmortems"
         title="Incident learning loop"
-        description="Incidents stay connected to the domains and systems that own the prevention work."
+        description="Incidents stay attached to the systems that must absorb the learning."
       />
 
       <section className="grid gap-4">

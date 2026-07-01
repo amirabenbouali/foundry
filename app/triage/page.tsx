@@ -28,7 +28,7 @@ export default async function TriagePage() {
       <PageHeader
         eyebrow="Triage"
         title="Incident ownership triage"
-        description="A focused queue for severity, owner, postmortem need, and the domain that owns follow-up."
+        description="Severity, domain owner, postmortem pressure, and follow-up ownership in one place."
       />
 
       <div className="grid gap-5">

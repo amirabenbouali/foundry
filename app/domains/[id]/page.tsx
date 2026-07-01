@@ -64,7 +64,7 @@ export default async function DomainDetailPage({ params }: DomainDetailPageProps
       <div className="mt-6 grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
         <SectionPanel
           title="Engineering DNA"
-          description="A diagnostic profile of how this system behaves over time."
+          description="Foundry's diagnosis of how this system behaves and what that behavior reveals."
           className="xl:col-span-2"
         >
           <div className="grid gap-5 xl:grid-cols-[0.75fr_1.25fr]">
@@ -138,7 +138,7 @@ export default async function DomainDetailPage({ params }: DomainDetailPageProps
 
         <SectionPanel
           title="Ownership Health"
-          description="Foundry asks who owns this system and whether it is being looked after properly."
+          description="Who owns this system, and whether it is being looked after properly."
           className="xl:col-span-2"
         >
           <div className="grid gap-5 xl:grid-cols-[0.8fr_1.2fr]">
@@ -233,7 +233,7 @@ export default async function DomainDetailPage({ params }: DomainDetailPageProps
           </div>
         </SectionPanel>
 
-        <SectionPanel title="System Ownership" description={domain.system}>
+        <SectionPanel title="Ownership Surface" description={domain.system}>
           <div className="space-y-5">
             <div>
               <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
@@ -259,7 +259,7 @@ export default async function DomainDetailPage({ params }: DomainDetailPageProps
           </div>
         </SectionPanel>
 
-        <SectionPanel title="Open Ownership Work">
+        <SectionPanel title="Open Stewardship Work">
           <div className="divide-y divide-neutral-100">
             {openIssues.map((issue) => (
               <Link key={issue.id} href={`/issues/${issue.id}`} className="block py-4 first:pt-0 last:pb-0">

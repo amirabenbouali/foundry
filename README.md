@@ -1,33 +1,68 @@
 # Foundry
 
-Foundry is an engineering operating system for software ownership.
+**Foundry is an engineering operating system that helps teams understand whether the software they own is safe to operate, change, and ship.**
 
-It is not a generic project manager or task board. Foundry centers the software systems a team owns, the risks attached to those systems, the rollouts that change them, and the incidents that teach the organization how to improve.
+Foundry is not a Jira clone, task board, or project tracker. It is a product experiment around software ownership: domains, readiness, stewardship, incidents, rollouts, postmortems, and the operating signals that make engineering work trustworthy.
 
-Alpha v0.4 introduces the first opinionated workflow: Deployment Readiness. Foundry now evaluates whether engineering work has enough evidence to ship safely.
+## Why Foundry Exists
 
-Alpha v0.5 adds Ownership Health. Foundry now asks whether each software domain has an accountable owner and is being actively looked after.
+Modern engineering teams ship inside systems they do not always fully understand. The work may have an owner, but the system might still be under-monitored. A plan may exist, but rollback may be vague. Incidents may close, but prevention may never connect back to the domain.
 
-Alpha v0.6 adds Engineering DNA: a domain profile that explains the behavioral character and risk pattern of each system over time.
+Foundry exists to answer sharper questions:
 
-## Product Philosophy
+- Who owns this system?
+- Is this work actually safe to ship?
+- Is the system being looked after properly?
+- What kind of system is this becoming?
+- What risks does its behavior reveal?
 
-Foundry starts from ownership, not tickets.
+## What Makes It Different
 
-The core product question is: "Which systems need engineering attention, who owns them, and what evidence tells us they are safe to change?"
+Foundry starts from software ownership, not task throughput.
 
-The product intentionally uses a calm, restrained interface so the important signals stand out:
+Instead of boards, columns, and generic status labels, Foundry models engineering judgement:
 
-- domains and systems
-- owners and operational health
-- ownership health
-- engineering DNA
-- engineering risks
-- rollout plans
-- deployment readiness
-- active incidents
-- postmortem learnings
-- monitoring and rollback readiness
+- **Deployment Readiness** asks whether an issue has enough evidence to ship safely.
+- **Ownership Health** asks whether a domain is actively stewarded.
+- **Engineering DNA** diagnoses the behavioral character of a system over time.
+
+The result is a calm operating surface for engineering leaders and domain owners: fewer vanity signals, more system truth.
+
+## Screenshots
+
+Screenshots are intentionally left as placeholders until the UI stabilizes further.
+
+- Overview: System DNA, Deployment Readiness, Ownership Health
+- Domains: owned systems with stewardship and DNA signals
+- Domain detail: diagnosis, ownership health, incidents, blocked work
+- Issue detail: safe-to-ship readiness judgement
+
+## Key Product Concepts
+
+### Deployment Readiness
+
+Deployment Readiness scores engineering work based on whether the attached plan includes:
+
+- technical approach
+- edge cases
+- test plan
+- rollout plan
+- monitoring plan
+- rollback plan
+
+It turns "we have a plan" into "we have enough evidence to ship safely."
+
+### Ownership Health
+
+Ownership Health scores each domain based on owner presence, open issues, active incidents, blocked issues, and rollout or monitoring gaps.
+
+It answers: "Who owns this system, and is it being looked after properly?"
+
+### Engineering DNA
+
+Engineering DNA combines ownership health, readiness, incidents, postmortem pressure, rollout gaps, and monitoring gaps into a system profile.
+
+It answers: "What kind of system is this, and what risks does its behavior reveal?"
 
 ## Tech Stack
 
@@ -69,33 +104,30 @@ npm run prisma:migrate
 npm run prisma:seed
 ```
 
-The app uses `lib/data.ts` as the data abstraction. Without `DATABASE_URL`, it renders from curated sample data so the product can be reviewed immediately.
+Foundry uses `lib/data.ts` as the data abstraction. Without `DATABASE_URL`, it renders from curated sample data so the product can be reviewed immediately.
 
 ## Core Routes
 
-- `/` - ownership overview
+- `/` - operating overview
 - `/domains` - owned software systems
-- `/domains/[id]` - domain ownership profile
-- `/issues` - engineering risks
-- `/issues/[id]` - engineering plan detail
+- `/domains/[id]` - domain diagnosis and stewardship profile
+- `/issues` - engineering risks and deployment readiness
+- `/issues/[id]` - safe-to-ship plan detail
 - `/triage` - incident ownership triage
 - `/postmortems` - incident learning loop
-- `/settings` - workspace foundation
+- `/settings` - workspace basics
 
 ## Engineering Practices Demonstrated
 
 - Server-rendered product surfaces with App Router.
-- A narrow data access layer that isolates database access from UI code.
-- Prisma schema modeling ownership, risk, plans, incidents, and postmortems.
-- Seed data that exercises real product concepts rather than placeholder tasks.
-- Derived deployment readiness scoring for safe-to-ship judgement.
-- Derived ownership health scoring for system stewardship.
-- Derived Engineering DNA profiles for system behavior and risk character.
-- Unit tests for data helpers.
+- A narrow data access layer that isolates UI from persistence.
+- Prisma schema modeling domains, issues, engineering plans, incidents, and postmortems.
+- Derived product judgement layers for readiness, ownership health, and Engineering DNA.
+- Unit tests for scoring logic and data helpers.
 - Playwright smoke tests for critical product routes.
 - GitHub Actions for install, lint, test, and build.
-- Product and operational docs covering rollout, runbook, observability, and review discipline.
-- No premature authentication or CRUD before the core product model is clear.
+- Product docs, RFCs, runbooks, observability notes, and review checklists.
+- Tight scope: no auth, no CRUD, no external services until the operating model is clear.
 
 ## Verification
 

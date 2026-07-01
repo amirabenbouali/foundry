@@ -44,8 +44,8 @@ export default async function OverviewPage() {
     <>
       <PageHeader
         eyebrow="Overview"
-        title="Software ownership posture"
-        description="A quiet operational view of the systems, risks, incidents, and rollout work that need engineering ownership."
+        title="Engineering operating picture"
+        description="A calm read on system behavior, ownership pressure, shipment evidence, and incident learning."
       />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -58,7 +58,7 @@ export default async function OverviewPage() {
       <div className="mt-8 grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
         <SectionPanel
           title="System DNA"
-          description="A behavioral profile of how owned systems age, change, and reveal risk."
+          description="How owned systems are behaving, not just how much work they contain."
           className="xl:col-span-2"
         >
           <div className="grid gap-4 md:grid-cols-4">
@@ -78,7 +78,7 @@ export default async function OverviewPage() {
               <div className="mt-3 text-3xl font-semibold text-neutral-950">
                 {dnaSummary.evolvingSystems}
               </div>
-              <p className="mt-2 text-sm leading-6 text-neutral-600">Active change with signals worth watching.</p>
+              <p className="mt-2 text-sm leading-6 text-neutral-600">Healthy change with signals worth watching.</p>
             </div>
             <div className="rounded-md border border-neutral-200 bg-neutral-50/70 p-4">
               <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
@@ -114,7 +114,7 @@ export default async function OverviewPage() {
 
         <SectionPanel
           title="Deployment Readiness"
-          description="A judgement layer for whether engineering work has enough evidence to ship safely."
+          description="Foundry's safe-to-ship judgement across active engineering work."
           className="xl:col-span-2"
         >
           <div className="grid gap-4 md:grid-cols-3">
@@ -171,7 +171,7 @@ export default async function OverviewPage() {
 
         <SectionPanel
           title="Ownership Health"
-          description="A stewardship signal for whether each system has an owner, active attention, and safe rollout evidence."
+          description="Whether each domain has accountable ownership and enough operational care."
           className="xl:col-span-2"
         >
           <div className="grid gap-4 md:grid-cols-4">
@@ -202,7 +202,7 @@ export default async function OverviewPage() {
               <div className="mt-3 text-3xl font-semibold text-neutral-950">
                 {ownershipHealthSummary.watchDomains}
               </div>
-              <p className="mt-2 text-sm leading-6 text-neutral-600">Systems that need closer owner attention.</p>
+              <p className="mt-2 text-sm leading-6 text-neutral-600">Systems showing stewardship pressure.</p>
             </div>
             <div className="rounded-md border border-neutral-200 bg-neutral-50/70 p-4">
               <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
@@ -218,7 +218,7 @@ export default async function OverviewPage() {
 
         <SectionPanel
           title="Systems Needing Attention"
-          description="Domains with elevated health signals, unresolved risks, or active operational load."
+          description="Systems where ownership, incidents, or shipment evidence deserve a closer look."
         >
           <div className="grid gap-4 lg:grid-cols-2">
             {attentionSystems.map((domain) => (
@@ -227,7 +227,7 @@ export default async function OverviewPage() {
           </div>
         </SectionPanel>
 
-        <SectionPanel title="This Week's Engineering Focus">
+        <SectionPanel title="This Week's Engineering Judgement">
           <div className="space-y-4">
             {weeklyFocus.map((issue) => (
               <Link
@@ -248,7 +248,7 @@ export default async function OverviewPage() {
           </div>
         </SectionPanel>
 
-        <SectionPanel title="Active Incidents" description="Operational interruptions that still need owner attention.">
+        <SectionPanel title="Active Incidents" description="Interruptions still shaping system confidence.">
           <div className="space-y-3">
             {activeIncidents.map((incident) => (
               <div key={incident.id} className="rounded-md border border-neutral-200 bg-neutral-50/70 p-4">
@@ -265,7 +265,7 @@ export default async function OverviewPage() {
           </div>
         </SectionPanel>
 
-        <SectionPanel title="Recent Rollout Activity" description="Planned changes tied back to ownership risks.">
+        <SectionPanel title="Recent Rollout Activity" description="Change plans connected to ownership risk.">
           <div className="divide-y divide-neutral-100">
             {rolloutActivity.map((activity) => (
               <Link key={activity.id} href={`/issues/${activity.id}`} className="block py-3 first:pt-0 last:pb-0">

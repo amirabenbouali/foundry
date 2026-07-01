@@ -7,5 +7,6 @@ test("domain detail shows ownership context", async ({ page }) => {
   await expect(page.getByText("Lena Ortiz")).toBeVisible();
   await expect(page.getByText("Rollout Notes")).toBeVisible();
   await expect(page.getByText("Alert Routing")).toBeVisible();
-  await expect(page.getByText("Open Ownership Work")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Engineering DNA" })).toBeVisible();
+  await expect(page.getByText("Open Stewardship Work")).toBeVisible();
 });

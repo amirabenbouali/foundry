@@ -89,7 +89,7 @@ export function Sidebar() {
         <div className="mt-8 rounded-lg border border-neutral-200 bg-white/70 p-3">
           <div className="text-xs font-medium text-neutral-950">Operating lens</div>
           <p className="mt-1 text-xs leading-5 text-neutral-500">
-            Domains, risks, rollouts, incidents, and learning loops.
+            Ownership, readiness, system DNA, and incident learning.
           </p>
         </div>
       </aside>

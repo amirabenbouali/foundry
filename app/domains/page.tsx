@@ -9,8 +9,8 @@ export default async function DomainsPage() {
     <>
       <PageHeader
         eyebrow="Domains"
-        title="Owned software systems"
-        description="Each domain represents a real ownership boundary with an accountable owner, health signal, and operational risk surface."
+        title="Systems under ownership"
+        description="Each domain is a living software system with stewardship, shipment evidence, and behavioral signals."
       />
 
       <section className="grid gap-4 lg:grid-cols-2">
