@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
+import { ReadinessBadge, ReadinessMeter } from "@/components/readiness";
 import { SectionPanel } from "@/components/section-panel";
 import { StatusPill } from "@/components/status-pill";
 import { getIssue } from "@/lib/data";
+import { calculateDeploymentReadiness } from "@/lib/readiness";
 import { formatLabel } from "@/lib/utils";
 
 type IssueDetailPageProps = {
@@ -29,6 +31,7 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
   }
 
   const plan = issue.plan;
+  const readiness = calculateDeploymentReadiness(plan);
 
   return (
     <>
@@ -61,6 +64,72 @@ export default async function IssueDetailPage({ params }: IssueDetailPageProps) 
       </section>
 
       <div className="mt-6 grid gap-5 xl:grid-cols-[0.8fr_1.2fr]">
+        <SectionPanel
+          title="Deployment Readiness"
+          description="Foundry asks whether this work has enough engineering evidence to ship safely."
+        >
+          <div className="space-y-5">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="text-3xl font-semibold text-neutral-950">{readiness.score}%</div>
+                <p className="mt-1 text-sm text-neutral-500">Safe-to-ship confidence</p>
+              </div>
+              <ReadinessBadge status={readiness.status} />
+            </div>
+            <ReadinessMeter score={readiness.score} />
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
+                  Evidence Present
+                </h2>
+                <div className="mt-3 space-y-2">
+                  {readiness.completedSections.length > 0 ? (
+                    readiness.completedSections.map((section) => (
+                      <div key={section.key} className="rounded-md border border-neutral-200 bg-neutral-50 px-3 py-2 text-sm text-neutral-700">
+                        {section.label}
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm leading-6 text-neutral-600">No readiness evidence has been attached yet.</p>
+                  )}
+                </div>
+              </div>
+              <div>
+                <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
+                  Judgement Gaps
+                </h2>
+                <div className="mt-3 space-y-2">
+                  {readiness.missingSections.length > 0 ? (
+                    readiness.missingSections.map((section) => (
+                      <div key={section.key} className="rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm text-neutral-700">
+                        {section.label}
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm leading-6 text-neutral-600">No blocking gaps detected in the deployment plan.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {readiness.blockers.length > 0 ? (
+              <div className="border-t border-neutral-100 pt-4">
+                <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
+                  Blocking Safe Shipment
+                </h2>
+                <div className="mt-3 space-y-2">
+                  {readiness.blockers.map((blocker) => (
+                    <p key={blocker} className="text-sm leading-6 text-neutral-700">
+                      {blocker}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </SectionPanel>
+
         <SectionPanel title="Ownership Risk">
           <div className="space-y-5">
             <div>

@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { DomainCard } from "@/components/domain-card";
 import { PageHeader } from "@/components/page-header";
+import { ReadinessBadge, ReadinessMeter } from "@/components/readiness";
 import { SectionPanel } from "@/components/section-panel";
 import { StatCard } from "@/components/stat-card";
 import { StatusPill } from "@/components/status-pill";
 import {
+  getDeploymentReadinessSummary,
   getIncidents,
   getOverviewMetrics,
   getRecentRolloutActivity,
@@ -13,8 +15,9 @@ import {
 } from "@/lib/data";
 
 export default async function OverviewPage() {
-  const [metrics, attentionSystems, weeklyFocus, incidents, rolloutActivity] = await Promise.all([
+  const [metrics, readinessSummary, attentionSystems, weeklyFocus, incidents, rolloutActivity] = await Promise.all([
     getOverviewMetrics(),
+    getDeploymentReadinessSummary(),
     getSystemsNeedingAttention(),
     getWeeklyFocus(),
     getIncidents(),
@@ -38,6 +41,63 @@ export default async function OverviewPage() {
       </section>
 
       <div className="mt-8 grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
+        <SectionPanel
+          title="Deployment Readiness"
+          description="A judgement layer for whether engineering work has enough evidence to ship safely."
+          className="xl:col-span-2"
+        >
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="rounded-md border border-neutral-200 bg-neutral-50/70 p-4">
+              <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                Average readiness
+              </div>
+              <div className="mt-3 text-3xl font-semibold text-neutral-950">
+                {readinessSummary.averageReadiness}%
+              </div>
+              <div className="mt-3">
+                <ReadinessMeter score={readinessSummary.averageReadiness} />
+              </div>
+            </div>
+            <div className="rounded-md border border-neutral-200 bg-neutral-50/70 p-4">
+              <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                Ready issues
+              </div>
+              <div className="mt-3 text-3xl font-semibold text-neutral-950">
+                {readinessSummary.readyIssues}
+              </div>
+              <p className="mt-2 text-sm leading-6 text-neutral-600">Plans with complete ship-safety evidence.</p>
+            </div>
+            <div className="rounded-md border border-neutral-200 bg-neutral-50/70 p-4">
+              <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                Blocked issues
+              </div>
+              <div className="mt-3 text-3xl font-semibold text-neutral-950">
+                {readinessSummary.blockedIssues}
+              </div>
+              <p className="mt-2 text-sm leading-6 text-neutral-600">Work missing enough evidence to ship safely.</p>
+            </div>
+          </div>
+
+          <div className="mt-5 divide-y divide-neutral-100">
+            {readinessSummary.needsAttention.map((issue) => (
+              <Link key={issue.id} href={`/issues/${issue.id}`} className="block py-3 first:pt-0 last:pb-0">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-sm font-medium text-neutral-950">{issue.title}</h3>
+                    <p className="mt-1 text-xs text-neutral-500">{issue.domain}</p>
+                  </div>
+                  <div className="min-w-28">
+                    <ReadinessBadge status={issue.readiness.status} />
+                    <div className="mt-2 text-xs font-medium text-neutral-600">
+                      {issue.readiness.score}% ready
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </SectionPanel>
+
         <SectionPanel
           title="Systems Needing Attention"
           description="Domains with elevated health signals, unresolved risks, or active operational load."

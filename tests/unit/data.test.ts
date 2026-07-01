@@ -8,6 +8,7 @@ import {
   getSystemsNeedingAttention,
   getWeeklyFocus,
 } from "../../lib/data";
+import { calculateDeploymentReadiness, getReadinessStatus } from "../../lib/readiness";
 
 describe("data helpers", () => {
   it("summarizes ownership posture metrics from fallback data", async () => {
@@ -51,5 +52,54 @@ describe("data helpers", () => {
     expect(weeklyFocus.some((issue) => issue.status === "IN_PROGRESS")).toBe(true);
     expect(rolloutActivity.length).toBeGreaterThan(0);
     expect(incidents.some((incident) => incident.postmortemRequired)).toBe(true);
+  });
+});
+
+describe("deployment readiness", () => {
+  it("scores completed engineering plan sections", () => {
+    const readiness = calculateDeploymentReadiness({
+      approach: "Use owner-aware policies.",
+      edgeCases: "Emergency override.",
+      testPlan: "Policy tests.",
+      rolloutPlan: "Report-only first.",
+      monitoringPlan: "Override rate.",
+      rollbackPlan: "Disable enforcement flag.",
+    });
+
+    expect(readiness.score).toBe(100);
+    expect(readiness.status).toBe("Ready");
+    expect(readiness.missingSections).toHaveLength(0);
+  });
+
+  it("marks partial plans as needing attention", () => {
+    const readiness = calculateDeploymentReadiness({
+      approach: "Define budget policy.",
+      testPlan: "Replay fixtures.",
+      rolloutPlan: "Report-only.",
+    });
+
+    expect(readiness.score).toBe(50);
+    expect(readiness.status).toBe("Needs attention");
+    expect(readiness.missingSections.map((section) => section.key)).toEqual([
+      "edgeCases",
+      "monitoringPlan",
+      "rollbackPlan",
+    ]);
+  });
+
+  it("marks missing plans as blocked", () => {
+    const readiness = calculateDeploymentReadiness(null);
+
+    expect(readiness.score).toBe(0);
+    expect(readiness.status).toBe("Blocked");
+    expect(readiness.blockers).toContain("Rollback plan is missing, so recovery is not proven.");
+  });
+
+  it("uses readiness thresholds", () => {
+    expect(getReadinessStatus(100)).toBe("Ready");
+    expect(getReadinessStatus(85)).toBe("Ready");
+    expect(getReadinessStatus(84)).toBe("Needs attention");
+    expect(getReadinessStatus(50)).toBe("Needs attention");
+    expect(getReadinessStatus(49)).toBe("Blocked");
   });
 });

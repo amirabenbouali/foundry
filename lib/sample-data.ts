@@ -174,6 +174,18 @@ export const issues = [
     severity: "MEDIUM" as IssueSeverity,
     risk: "Telemetry cost and query latency grow without domain-level accountability.",
     rollout: "Create budgets, alerts, and owner acknowledgements per domain.",
+    plan: {
+      title: "Domain-owned cardinality budgets",
+      status: "DRAFT" as PlanStatus,
+      approach: "Introduce per-domain metric budgets and route threshold exceptions to the owning system team.",
+      edgeCases: "",
+      testPlan: "Replay high-cardinality metric fixtures and verify budget classification by domain.",
+      rolloutPlan: "Start in report-only mode for telemetry-heavy domains before enforcing budget notifications.",
+      monitoringPlan: "",
+      rollbackPlan: "",
+      owner: "Lena Ortiz",
+      targetDate: "2026-08-12T00:00:00.000Z",
+    },
   },
   {
     id: "account-recovery-runbook",

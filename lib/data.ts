@@ -1,4 +1,5 @@
 import { domains, incidents, issues, workspace } from "./sample-data";
+import { calculateDeploymentReadiness } from "./readiness";
 
 type PrismaModule = typeof import("@prisma/client");
 
@@ -254,6 +255,34 @@ export async function getRecentRolloutActivity() {
       rollout: issue.rollout,
       status: issue.status,
     }));
+}
+
+export async function getDeploymentReadinessSummary() {
+  const allIssues = await getIssues();
+  const assessedIssues = allIssues.map((issue) => ({
+    id: issue.id,
+    title: issue.title,
+    domain: issue.domain?.name,
+    status: issue.status,
+    readiness: calculateDeploymentReadiness(issue.plan),
+  }));
+  const averageReadiness =
+    assessedIssues.length > 0
+      ? Math.round(
+          assessedIssues.reduce((total, issue) => total + issue.readiness.score, 0) /
+            assessedIssues.length,
+        )
+      : 0;
+
+  return {
+    averageReadiness,
+    readyIssues: assessedIssues.filter((issue) => issue.readiness.status === "Ready").length,
+    blockedIssues: assessedIssues.filter((issue) => issue.readiness.status === "Blocked").length,
+    needsAttention: assessedIssues
+      .filter((issue) => issue.readiness.status !== "Ready")
+      .sort((a, b) => a.readiness.score - b.readiness.score)
+      .slice(0, 3),
+  };
 }
 
 export async function getWorkspace() {

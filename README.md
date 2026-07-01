@@ -4,6 +4,8 @@ Foundry is an engineering operating system for software ownership.
 
 It is not a generic project manager or task board. Foundry centers the software systems a team owns, the risks attached to those systems, the rollouts that change them, and the incidents that teach the organization how to improve.
 
+Alpha v0.4 introduces the first opinionated workflow: Deployment Readiness. Foundry now evaluates whether engineering work has enough evidence to ship safely.
+
 ## Product Philosophy
 
 Foundry starts from ownership, not tickets.
@@ -16,6 +18,7 @@ The product intentionally uses a calm, restrained interface so the important sig
 - owners and operational health
 - engineering risks
 - rollout plans
+- deployment readiness
 - active incidents
 - postmortem learnings
 - monitoring and rollback readiness
@@ -79,6 +82,7 @@ The app uses `lib/data.ts` as the data abstraction. Without `DATABASE_URL`, it r
 - A narrow data access layer that isolates database access from UI code.
 - Prisma schema modeling ownership, risk, plans, incidents, and postmortems.
 - Seed data that exercises real product concepts rather than placeholder tasks.
+- Derived deployment readiness scoring for safe-to-ship judgement.
 - Unit tests for data helpers.
 - Playwright smoke tests for critical product routes.
 - GitHub Actions for install, lint, test, and build.
