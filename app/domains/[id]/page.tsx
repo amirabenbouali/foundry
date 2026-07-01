@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { EngineeringDnaBadge, EngineeringDnaMeter } from "@/components/engineering-dna";
 import { OwnershipHealthBadge, OwnershipHealthMeter } from "@/components/ownership-health";
 import { PageHeader } from "@/components/page-header";
 import { SectionPanel } from "@/components/section-panel";
 import { StatusPill } from "@/components/status-pill";
 import { getDomain } from "@/lib/data";
+import { calculateEngineeringDna } from "@/lib/engineering-dna";
 import { calculateOwnershipHealth } from "@/lib/ownership-health";
 import { calculateDeploymentReadiness } from "@/lib/readiness";
 import { formatLabel } from "@/lib/utils";
@@ -26,6 +28,7 @@ export default async function DomainDetailPage({ params }: DomainDetailPageProps
   const openIssues = domain.issues.filter((issue) => issue.status !== "RESOLVED");
   const activeIncidents = domain.incidents.filter((incident) => incident.status !== "RESOLVED");
   const ownershipHealth = calculateOwnershipHealth(domain);
+  const engineeringDna = calculateEngineeringDna(domain);
   const blockedIssues = openIssues.filter(
     (issue) => calculateDeploymentReadiness(issue.plan).status === "Blocked",
   );
@@ -59,6 +62,80 @@ export default async function DomainDetailPage({ params }: DomainDetailPageProps
       </section>
 
       <div className="mt-6 grid gap-5 xl:grid-cols-[0.9fr_1.1fr]">
+        <SectionPanel
+          title="Engineering DNA"
+          description="A diagnostic profile of how this system behaves over time."
+          className="xl:col-span-2"
+        >
+          <div className="grid gap-5 xl:grid-cols-[0.75fr_1.25fr]">
+            <div className="rounded-md border border-neutral-200 bg-neutral-50/70 p-4">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="text-3xl font-semibold text-neutral-950">
+                    {engineeringDna.score}%
+                  </div>
+                  <p className="mt-1 text-sm text-neutral-500">Behavior profile</p>
+                </div>
+                <EngineeringDnaBadge status={engineeringDna.status} />
+              </div>
+              <div className="mt-4">
+                <EngineeringDnaMeter score={engineeringDna.score} />
+              </div>
+              <div className="mt-5 grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <div className="text-neutral-500">Avg readiness</div>
+                  <div className="mt-1 font-semibold text-neutral-950">
+                    {engineeringDna.averageReadiness}%
+                  </div>
+                </div>
+                <div>
+                  <div className="text-neutral-500">Required postmortems</div>
+                  <div className="mt-1 font-semibold text-neutral-950">
+                    {engineeringDna.postmortemRequiredCount}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h2 className="text-xs font-semibold uppercase tracking-[0.16em] text-neutral-500">
+                Diagnosis
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-neutral-700">{engineeringDna.explanation}</p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {engineeringDna.traits.map((trait) => (
+                  <span
+                    key={trait}
+                    className="rounded-md border border-neutral-200 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700"
+                  >
+                    {trait}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-5 grid gap-3 md:grid-cols-3">
+                <div className="rounded-md border border-neutral-200 bg-white p-3">
+                  <div className="text-xs text-neutral-500">Missing rollout plans</div>
+                  <div className="mt-1 text-sm font-semibold text-neutral-950">
+                    {engineeringDna.missingRolloutPlanCount}
+                  </div>
+                </div>
+                <div className="rounded-md border border-neutral-200 bg-white p-3">
+                  <div className="text-xs text-neutral-500">Missing monitoring plans</div>
+                  <div className="mt-1 text-sm font-semibold text-neutral-950">
+                    {engineeringDna.missingMonitoringPlanCount}
+                  </div>
+                </div>
+                <div className="rounded-md border border-neutral-200 bg-white p-3">
+                  <div className="text-xs text-neutral-500">Active incidents</div>
+                  <div className="mt-1 text-sm font-semibold text-neutral-950">
+                    {engineeringDna.activeIncidentCount}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </SectionPanel>
+
         <SectionPanel
           title="Ownership Health"
           description="Foundry asks who owns this system and whether it is being looked after properly."

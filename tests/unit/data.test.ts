@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   getDomainsWithOwnershipHealth,
   getDomain,
+  getEngineeringDnaSummary,
   getIncidents,
   getIssue,
   getOverviewMetrics,
@@ -10,6 +11,7 @@ import {
   getSystemsNeedingAttention,
   getWeeklyFocus,
 } from "../../lib/data";
+import { calculateEngineeringDna, getEngineeringDnaStatus } from "../../lib/engineering-dna";
 import { calculateOwnershipHealth, getOwnershipHealthStatus } from "../../lib/ownership-health";
 import { calculateDeploymentReadiness, getReadinessStatus } from "../../lib/readiness";
 
@@ -176,6 +178,91 @@ describe("ownership health", () => {
       healthyDomains: 1,
       watchDomains: 3,
       atRiskDomains: 1,
+    });
+  });
+});
+
+describe("engineering DNA", () => {
+  it("diagnoses stable systems with strong ownership and shipment evidence", () => {
+    const dna = calculateEngineeringDna({
+      owner: "Ari Cohen",
+      issues: [
+        {
+          status: "PLANNED",
+          plan: {
+            approach: "Constrain replay windows.",
+            edgeCases: "Plan transitions.",
+            testPlan: "Replay fixtures.",
+            rolloutPlan: "Internal accounts first.",
+            monitoringPlan: "Watch reconciliation deltas.",
+            rollbackPlan: "Cancel pending replay jobs.",
+          },
+        },
+      ],
+      incidents: [],
+    });
+
+    expect(dna.score).toBe(99);
+    expect(dna.status).toBe("Stable");
+    expect(dna.traits).toEqual(["Well-owned", "Rollout-aware", "Ready to ship"]);
+  });
+
+  it("diagnoses fragile systems from incidents and missing safety evidence", () => {
+    const dna = calculateEngineeringDna({
+      owner: "Noah Kim",
+      issues: [
+        {
+          status: "IN_PROGRESS",
+          plan: {
+            approach: "Require owner gates.",
+            edgeCases: "Emergency overrides.",
+            testPlan: "Policy tests.",
+            rolloutPlan: "Report-only first.",
+            monitoringPlan: "Watch override rate.",
+            rollbackPlan: "Disable enforcement flag.",
+          },
+        },
+        {
+          status: "OPEN",
+          plan: null,
+        },
+      ],
+      incidents: [{ status: "MONITORING", postmortemRequired: true }],
+    });
+
+    expect(dna.score).toBe(38);
+    expect(dna.status).toBe("Fragile");
+    expect(dna.traits).toContain("Incident-prone");
+    expect(dna.traits).toContain("Needs clearer plans");
+  });
+
+  it("uses engineering DNA thresholds", () => {
+    expect(getEngineeringDnaStatus(100)).toBe("Stable");
+    expect(getEngineeringDnaStatus(85)).toBe("Stable");
+    expect(getEngineeringDnaStatus(84)).toBe("Evolving");
+    expect(getEngineeringDnaStatus(60)).toBe("Evolving");
+    expect(getEngineeringDnaStatus(59)).toBe("Fragile");
+  });
+
+  it("returns engineering DNA for domain cards and overview summary", async () => {
+    const [domainsWithDna, summary] = await Promise.all([
+      getDomainsWithOwnershipHealth(),
+      getEngineeringDnaSummary(),
+    ]);
+    const billing = domainsWithDna.find((domain) => domain.slug === "billing-ledger");
+
+    expect(billing?.engineeringDna.status).toBe("Stable");
+    expect(billing?.engineeringDna.traits).toContain("Ready to ship");
+    expect(summary).toEqual({
+      stableSystems: 1,
+      evolvingSystems: 0,
+      fragileSystems: 4,
+      topFragileDomain: {
+        id: "deployment-control-plane",
+        name: "Deployment Control Plane",
+        score: 38,
+        traits: ["Under-monitored", "Incident-prone", "Needs clearer plans"],
+      },
     });
   });
 });

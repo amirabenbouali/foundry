@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { EngineeringDnaBadge } from "@/components/engineering-dna";
 import { OwnershipHealthBadge, OwnershipHealthMeter } from "@/components/ownership-health";
+import type { EngineeringDna } from "@/lib/engineering-dna";
 import type { OwnershipHealth } from "@/lib/ownership-health";
 import { formatLabel } from "@/lib/utils";
 
@@ -16,6 +18,7 @@ type DomainCardProps = {
       incidents?: number;
     };
     ownershipHealth?: OwnershipHealth;
+    engineeringDna?: EngineeringDna;
   };
 };
 
@@ -66,6 +69,12 @@ export function DomainCard({ domain }: DomainCardProps) {
               </p>
             ))}
           </div>
+          {domain.engineeringDna ? (
+            <div className="mt-3 flex items-center justify-between gap-3 border-t border-neutral-200 pt-3">
+              <span className="text-xs font-medium text-neutral-500">Engineering DNA</span>
+              <EngineeringDnaBadge status={domain.engineeringDna.status} />
+            </div>
+          ) : null}
         </div>
       ) : null}
 

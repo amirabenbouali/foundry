@@ -1,4 +1,5 @@
 import { domains, incidents, issues, workspace } from "./sample-data";
+import { calculateEngineeringDna } from "./engineering-dna";
 import { calculateDeploymentReadiness } from "./readiness";
 import { calculateOwnershipHealth } from "./ownership-health";
 
@@ -145,6 +146,7 @@ export async function getDomainsWithOwnershipHealth() {
     return allDomains.map((domain) => ({
       ...domain,
       ownershipHealth: calculateOwnershipHealth(domain),
+      engineeringDna: calculateEngineeringDna(domain),
     }));
   }
 
@@ -157,6 +159,11 @@ export async function getDomainsWithOwnershipHealth() {
       issues: domainIssues,
       incidents: domainIncidents,
       ownershipHealth: calculateOwnershipHealth({
+        owner: domain.owner,
+        issues: domainIssues,
+        incidents: domainIncidents,
+      }),
+      engineeringDna: calculateEngineeringDna({
         owner: domain.owner,
         issues: domainIssues,
         incidents: domainIncidents,
@@ -242,6 +249,29 @@ export async function getOwnershipHealthSummary() {
     atRiskDomains: domainsWithHealth.filter(
       (domain) => domain.ownershipHealth.status === "At risk",
     ).length,
+  };
+}
+
+export async function getEngineeringDnaSummary() {
+  const domainsWithDna = await getDomainsWithOwnershipHealth();
+  const sortedFragileDomains = domainsWithDna
+    .filter((domain) => domain.engineeringDna.status === "Fragile")
+    .sort((a, b) => a.engineeringDna.score - b.engineeringDna.score);
+
+  return {
+    stableSystems: domainsWithDna.filter((domain) => domain.engineeringDna.status === "Stable")
+      .length,
+    evolvingSystems: domainsWithDna.filter((domain) => domain.engineeringDna.status === "Evolving")
+      .length,
+    fragileSystems: sortedFragileDomains.length,
+    topFragileDomain: sortedFragileDomains[0]
+      ? {
+          id: sortedFragileDomains[0].id,
+          name: sortedFragileDomains[0].name,
+          score: sortedFragileDomains[0].engineeringDna.score,
+          traits: sortedFragileDomains[0].engineeringDna.traits,
+        }
+      : null,
   };
 }
 

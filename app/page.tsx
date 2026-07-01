@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DomainCard } from "@/components/domain-card";
+import { EngineeringDnaBadge } from "@/components/engineering-dna";
 import { OwnershipHealthMeter } from "@/components/ownership-health";
 import { PageHeader } from "@/components/page-header";
 import { ReadinessBadge, ReadinessMeter } from "@/components/readiness";
@@ -8,6 +9,7 @@ import { StatCard } from "@/components/stat-card";
 import { StatusPill } from "@/components/status-pill";
 import {
   getDeploymentReadinessSummary,
+  getEngineeringDnaSummary,
   getIncidents,
   getOverviewMetrics,
   getOwnershipHealthSummary,
@@ -19,6 +21,7 @@ import {
 export default async function OverviewPage() {
   const [
     metrics,
+    dnaSummary,
     readinessSummary,
     ownershipHealthSummary,
     attentionSystems,
@@ -27,6 +30,7 @@ export default async function OverviewPage() {
     rolloutActivity,
   ] = await Promise.all([
     getOverviewMetrics(),
+    getEngineeringDnaSummary(),
     getDeploymentReadinessSummary(),
     getOwnershipHealthSummary(),
     getSystemsNeedingAttention(),
@@ -52,6 +56,62 @@ export default async function OverviewPage() {
       </section>
 
       <div className="mt-8 grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
+        <SectionPanel
+          title="System DNA"
+          description="A behavioral profile of how owned systems age, change, and reveal risk."
+          className="xl:col-span-2"
+        >
+          <div className="grid gap-4 md:grid-cols-4">
+            <div className="rounded-md border border-neutral-200 bg-neutral-50/70 p-4">
+              <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                Stable systems
+              </div>
+              <div className="mt-3 text-3xl font-semibold text-neutral-950">
+                {dnaSummary.stableSystems}
+              </div>
+              <p className="mt-2 text-sm leading-6 text-neutral-600">Strong ownership and low behavioral risk.</p>
+            </div>
+            <div className="rounded-md border border-neutral-200 bg-neutral-50/70 p-4">
+              <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                Evolving systems
+              </div>
+              <div className="mt-3 text-3xl font-semibold text-neutral-950">
+                {dnaSummary.evolvingSystems}
+              </div>
+              <p className="mt-2 text-sm leading-6 text-neutral-600">Active change with signals worth watching.</p>
+            </div>
+            <div className="rounded-md border border-neutral-200 bg-neutral-50/70 p-4">
+              <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                Fragile systems
+              </div>
+              <div className="mt-3 text-3xl font-semibold text-neutral-950">
+                {dnaSummary.fragileSystems}
+              </div>
+              <p className="mt-2 text-sm leading-6 text-neutral-600">Systems showing risky behavioral patterns.</p>
+            </div>
+            <div className="rounded-md border border-neutral-200 bg-neutral-50/70 p-4">
+              <div className="text-xs font-medium uppercase tracking-[0.14em] text-neutral-500">
+                Top fragile domain
+              </div>
+              {dnaSummary.topFragileDomain ? (
+                <Link href={`/domains/${dnaSummary.topFragileDomain.id}`} className="mt-3 block">
+                  <div className="text-sm font-semibold text-neutral-950">
+                    {dnaSummary.topFragileDomain.name}
+                  </div>
+                  <div className="mt-2 flex items-center justify-between gap-3">
+                    <span className="text-xs font-medium text-neutral-600">
+                      {dnaSummary.topFragileDomain.score}% DNA
+                    </span>
+                    <EngineeringDnaBadge status="Fragile" />
+                  </div>
+                </Link>
+              ) : (
+                <p className="mt-3 text-sm leading-6 text-neutral-600">No fragile systems detected.</p>
+              )}
+            </div>
+          </div>
+        </SectionPanel>
+
         <SectionPanel
           title="Deployment Readiness"
           description="A judgement layer for whether engineering work has enough evidence to ship safely."

@@ -8,6 +8,8 @@ Alpha v0.4 introduces the first opinionated workflow: Deployment Readiness. Foun
 
 Alpha v0.5 adds Ownership Health. Foundry now asks whether each software domain has an accountable owner and is being actively looked after.
 
+Alpha v0.6 adds Engineering DNA: a domain profile that explains the behavioral character and risk pattern of each system over time.
+
 ## Product Philosophy
 
 Foundry starts from ownership, not tickets.
@@ -19,6 +21,7 @@ The product intentionally uses a calm, restrained interface so the important sig
 - domains and systems
 - owners and operational health
 - ownership health
+- engineering DNA
 - engineering risks
 - rollout plans
 - deployment readiness
@@ -87,6 +90,7 @@ The app uses `lib/data.ts` as the data abstraction. Without `DATABASE_URL`, it r
 - Seed data that exercises real product concepts rather than placeholder tasks.
 - Derived deployment readiness scoring for safe-to-ship judgement.
 - Derived ownership health scoring for system stewardship.
+- Derived Engineering DNA profiles for system behavior and risk character.
 - Unit tests for data helpers.
 - Playwright smoke tests for critical product routes.
 - GitHub Actions for install, lint, test, and build.
